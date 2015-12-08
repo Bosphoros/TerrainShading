@@ -41,3 +41,14 @@ double MathUtils::mod(double a, double b) {
 double MathUtils::dabs(double d) {
     return d>=0?d:-d;
 }
+
+double MathUtils::clamp(double min, double max, double val)
+{
+    return val<min?min:val>max?max:val;
+}
+
+double MathUtils::random(double min, double max)
+{
+    double f = (double)rand() / RAND_MAX;
+    return min + f * (max - min);
+}

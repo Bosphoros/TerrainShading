@@ -129,6 +129,20 @@ public:
     const Vector3D operator^(const Vector3D& v2)const ;
 
     /**
+     * Read-access to the i-th member of the vector
+     * @param i the number of the member
+     * @return
+     */
+    double operator()(int i) const;
+
+    /**
+     * Write-access to the i-th member of the vector
+     * @param i the number of the member
+     * @return
+     */
+    double& operator()(int i);
+
+    /**
      * Returns the normal of the plane described by the two vectors
      * @param[in] v1 the first vector describing the plane
      * @param[in] v2 the second vector describing the plane
@@ -250,6 +264,9 @@ public:
      */
     friend inline std::ostream& operator<<(std::ostream& out, const Vector3D& v);
 
+    static QList<Vector3D> rotateScaleTranslate(QList<Vector3D> points, Vector3D center, float radius, Vector3D normal);
+    static QList<Vector3D> randHemisphere(int nbPoints);
+
 private:
     double xp; /**< The x coordinate of the vector */
     double yp; /**< The y coordinate of the vector */
@@ -337,6 +354,23 @@ inline double Vector3D::operator*(const Vector3D &v1) const
 inline const Vector3D Vector3D::operator^(const Vector3D &v1) const
 {
     return Vector3D(yp*v1.z()-zp*v1.y(),zp*v1.x()-xp*v1.z(),xp*v1.y()-yp*v1.x());
+}
+
+
+inline double Vector3D::operator()(int i) const {
+    if(i == 0)
+        return xp;
+    if(i == 1)
+        return yp;
+    return zp;
+}
+
+inline double& Vector3D::operator()(int i) {
+    if(i == 0)
+        return xp;
+    if(i == 1)
+        return yp;
+    return zp;
 }
 
 inline const Vector3D operator-(const Vector3D &vector)

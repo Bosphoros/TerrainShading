@@ -113,6 +113,9 @@ public:
      * @return
      */
     bool intersectAdvanced(const Ray &ray, const Vector3D &aBox, const Vector3D &bBox, double pMax, Vector3D &resu, bool &isBox) const;
+
+    bool intersectAdvancedMax(const Ray &ray, const Vector3D &aBox, const Vector3D &bBox,double pMax, Vector3D &resu, bool& isBox, float distMax) const;
+
 };
 
     inline Vector2D Terrain::getA() const{

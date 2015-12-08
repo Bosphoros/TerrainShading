@@ -1,4 +1,10 @@
 #include "vector3d.h"
+#include "mathutils.h"
+#include "matrix3.h"
+#include <cmath>
+
+# define M_PI           3.14159265358979323846
+
 #ifndef dabs
     #define dabs(x) x>0?x:-x
 #endif
@@ -48,3 +54,80 @@ double Vector3D::distanceToLine(const Vector3D &point, const Vector3D &direction
    double t= (point*direction-(*this)*direction)/(direction*direction);
    return distanceToPoint(point+t*direction);
 }
+
+
+QList<Vector3D> Vector3D::rotateScaleTranslate(QList<Vector3D> points, Vector3D center, float radius, Vector3D normal)
+{
+
+    Matrix3 matcam;
+        matcam(0,0)=cos(M_PI/2.52);
+        matcam(0,1)=0;
+        matcam(0,2)=sin(M_PI/2.52);
+        matcam(1,0)=0;
+        matcam(1,1)=1;
+        matcam(1,2)=0;
+        matcam(2,0)=-sin(M_PI/2.52);
+        matcam(2,1)=0;
+        matcam(2,2)=cos(M_PI/2.52);
+
+    QList<Vector3D> newPoints;
+
+    Matrix3 rotate = Matrix3::rotateAtoB(Vector3D(0,1,0), normal);
+
+    for(int i = 0; i < points.size(); i++)
+    {
+        newPoints << matcam * (center + points[i]*radius);
+    }
+    return newPoints;
+}
+
+QList<Vector3D> Vector3D::randHemisphere(int nbPoints)
+{
+    QList<Vector3D> points;
+    float rCarre = 1.0/(float)nbPoints;
+
+    for(int j=0;j<nbPoints*50;++j){
+
+        float phi = MathUtils::random(0, 2*M_PI);
+        float theta = MathUtils::random(-M_PI/2, M_PI/2);
+
+        float x = std::cos(phi) * std::sin(theta);
+        float y = std::sin(phi) * std::sin(theta);
+        float z = std::cos(theta);
+
+        Vector3D pointTemp (x,z ,y);
+
+        bool b=true;
+
+
+        for(int i=0;i<points.size();++i){
+            if(pointTemp.distanceToPointSquared(points[i])<4*rCarre){
+                //goto continue_tag;
+                b=false;
+                break;
+            }
+
+        }
+        //points<<pointTemp;
+
+        if(b){
+            points<<pointTemp;
+        }
+
+        //continue_tag:;
+
+    }
+
+    return points;
+}
+
+
+
+
+
+
+
+
+
+
+

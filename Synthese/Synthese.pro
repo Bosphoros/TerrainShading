@@ -31,7 +31,8 @@ SOURCES += main.cpp \
     terrainnoisesmultiples.cpp \
     mesh.cpp \
     meshbuilder.cpp \
-    terraintest.cpp
+    terraintest.cpp \
+    matrix3.cpp
 
 HEADERS += \
     terrain.h \
@@ -46,4 +47,5 @@ HEADERS += \
     terrainnoisesmultiples.h \
     mesh.h \
     meshbuilder.h \
-    terraintest.h
+    terraintest.h \
+    matrix3.h

@@ -47,7 +47,7 @@ double Terrain::getHauteurNormale(const Vector2D &p, Vector3D &n) const
 bool Terrain::intersectRayMarching(const Ray& ray, const Vector3D &aBox, const Vector3D &bBox, Vector3D& resu, bool& isBox)
 {
     isBox=false;
-    resu=ray.getOrigine();
+    resu=ray.origine;
 
     Vector3D in;
     Vector3D out;
@@ -58,7 +58,7 @@ bool Terrain::intersectRayMarching(const Ray& ray, const Vector3D &aBox, const V
         return false;
     }
     double distInOut = in.distanceToPoint(out);
-    Vector3D dir=ray.getDirection();
+    Vector3D dir=ray.direction;
     Ray r(in,dir);
 
     for(double tt = 0; tt <= distInOut+pas; tt+= pas)
@@ -86,7 +86,7 @@ bool Terrain::intersectAdvancedMax(const Ray &ray, const Vector3D &aBox, const V
 {
     double step=pas;
     isBox=false;
-    resu=ray.getOrigine();
+    resu=ray.origine;
 
     Vector3D in;
     Vector3D out;
@@ -97,7 +97,7 @@ bool Terrain::intersectAdvancedMax(const Ray &ray, const Vector3D &aBox, const V
         return false;
     }
     double distInOut = in.distanceToPoint(out);
-    Vector3D dir=ray.getDirection();
+    Vector3D dir=ray.direction;
     Ray r(in,dir);
     for(double tt = 0; tt <= distInOut+pas; tt+= step)
     {
@@ -125,7 +125,7 @@ bool Terrain::intersectAdvanced(const Ray &ray, const Vector3D &aBox, const Vect
 {
     double step=pas;
     isBox=false;
-    resu=ray.getOrigine();
+    resu=ray.origine;
 
     Vector3D in;
     Vector3D out;
@@ -136,7 +136,7 @@ bool Terrain::intersectAdvanced(const Ray &ray, const Vector3D &aBox, const Vect
         return false;
     }
     double distInOut = in.distanceToPoint(out);
-    Vector3D dir=ray.getDirection();
+    Vector3D dir=ray.direction;
     Ray r(in,dir);
     for(double tt = 0; tt <= distInOut+pas; tt+= step)
     {

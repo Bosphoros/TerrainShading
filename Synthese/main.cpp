@@ -101,7 +101,7 @@ void generateMesh(Terrain* const t,const QString& obj,int echantillion){
 
 int main(int argc, char *argv[])
 {
-    int arg=1;
+    /*int arg=1;
     QTime time;
 
     time.restart();
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
     generateMesh(t,obj,300);
     std::cout << "Mesh generated : " << time.restart() << "ms." << std::endl;//*/
 
-    time.restart();
+    /*time.restart();
     QString destination=argv[arg++];
     shoot(t,destination);
     std::cout << "Image generated from ray launching : " << time.restart() << "ms." << std::endl;//*/
@@ -131,7 +131,13 @@ int main(int argc, char *argv[])
     shootMulti(t,destination,100);
     std::cout << "100 images generated from ray launching : " << time.restart() << "ms." << std::endl;//*/
 
-    delete t;
+    //delete t;
 
+    Vector3D a(0,1,0);
+   Vector3D b(0.7,0,-2);
+   Vector3D z = b.normalized();
+
+   Vector3D y = (z^a).normalized();
+   std::cout <<y;
     return 0;
 }

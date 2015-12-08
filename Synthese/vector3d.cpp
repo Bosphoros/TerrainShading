@@ -59,7 +59,7 @@ double Vector3D::distanceToLine(const Vector3D &point, const Vector3D &direction
 QList<Vector3D> Vector3D::rotateScaleTranslate(QList<Vector3D> points, Vector3D center, float radius, Vector3D normal)
 {
 
-    Matrix3 matcam;
+    /*Matrix3 matcam;
         matcam(0,0)=cos(M_PI/2.52);
         matcam(0,1)=0;
         matcam(0,2)=sin(M_PI/2.52);
@@ -78,7 +78,7 @@ QList<Vector3D> Vector3D::rotateScaleTranslate(QList<Vector3D> points, Vector3D 
     {
         newPoints << matcam * (center + points[i]*radius);
     }
-    return newPoints;
+    return newPoints;*/
 }
 
 QList<Vector3D> Vector3D::randHemisphere(int nbPoints)

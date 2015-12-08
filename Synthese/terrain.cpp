@@ -16,7 +16,7 @@ Vector3D Terrain::norm(const Vector2D &p) const
     double hpxminus = getHauteur(pxminus);
     double hpy=getHauteur(py);
     double hpyminus = getHauteur(pyminus);
-    Vector3D resu(-(hpx-hpxminus),2*epsilon,-(hpy-hpyminus));
+    Vector3D resu(-(hpx-hpxminus),-(hpy-hpyminus),2*epsilon);
     resu.normalize();
     return resu;
 
@@ -26,14 +26,14 @@ Vector3D Terrain::norm(const Vector2D &p) const
 
 bool Terrain::isIn(const Vector3D &p) const
 {
-    Vector2D p2(p.x(),p.z());
-    return p.y()<=getHauteur(p2);
+    Vector2D p2(p.x(),p.y());
+    return p.z()<=getHauteur(p2);
 }
 
 bool Terrain::isOut(const Vector3D &p) const
 {
-    Vector2D p2(p.x(),p.z());
-    return p.y()>getHauteur(p2);
+    Vector2D p2(p.x(),p.y());
+    return p.z()>getHauteur(p2);
 }
 
 double Terrain::getHauteurNormale(const Vector2D &p, Vector3D &n) const
@@ -104,7 +104,7 @@ bool Terrain::intersectAdvancedMax(const Ray &ray, const Vector3D &aBox, const V
         if(tt >= distMax)
             return false;
         Vector3D pointTemp=r.getPoint(tt);
-        double dz=pointTemp.y()-getHauteur(Vector2D(pointTemp.x(),pointTemp.z()));
+        double dz=pointTemp.z()-getHauteur(Vector2D(pointTemp.x(),pointTemp.y()));
         if(dz<=0){
 
             resu=r.getPoint(tt-pas/2);
@@ -141,7 +141,7 @@ bool Terrain::intersectAdvanced(const Ray &ray, const Vector3D &aBox, const Vect
     for(double tt = 0; tt <= distInOut+pas; tt+= step)
     {
         Vector3D pointTemp=r.getPoint(tt);
-        double dz=pointTemp.y()-getHauteur(Vector2D(pointTemp.x(),pointTemp.z()));
+        double dz=pointTemp.z()-getHauteur(Vector2D(pointTemp.x(),pointTemp.y()));
         if(dz<=0){
 
             resu=r.getPoint(tt-pas/2);

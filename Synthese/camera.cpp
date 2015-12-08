@@ -12,7 +12,7 @@ Camera::Camera(const Vector3D &o, const Vector3D &at, double d):origine(o),dw(d)
 {
     Vector3D oat=(at-o);
     w=oat.normalized();
-    u=-(w^Vector3D(0,1,0)).normalized();
+    u=-(w^Vector3D(0,0,1)).normalized();
     v= (w^u).normalized();
     lh=1;
     lw=16/9;
@@ -42,7 +42,7 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
     }
 
     Vector3D normale;
-    t->getHauteurNormale(Vector2D(inter.x(),inter.z()),normale);
+    t->getHauteurNormale(Vector2D(inter.x(),inter.y()),normale);
     if(isBox) {
         QColor couleur(0,0,0,255);
         return couleur.rgba();
@@ -64,9 +64,9 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
     // Vector3D roche(0,0,255);
     Vector3D hau(234,234,234);
     Vector3D col;
-    double intery=inter.y();
-    intery+=-5+10*raw_noise_2d(inter.x()/80,inter.z()/80);
-    Vector3D up(0, 1, 0);
+    double intery=inter.z();
+    intery+=-5+10*raw_noise_2d(inter.x()/80,inter.y()/80);
+    Vector3D up(0, 0, 1);
     float crossUp = 1-std::abs(up*normale);
 
     float angle = acos(crossUp);
@@ -96,8 +96,8 @@ QImage Camera::printScreen(Terrain * const t, const Vector3D& s, int l, int h) c
     QImage im(l,h,QImage::Format_ARGB32);
     double min=t->getHauteurMin();
     double max=t->getHauteurMax();
-    Vector3D aBox(t->getA().x(),min,t->getA().y());
-    Vector3D bBox(t->getB().x(),max*1.5,t->getB().y());
+    Vector3D aBox(t->getA().x(),t->getA().y(),min);
+    Vector3D bBox(t->getB().x(),t->getB().y(),max*1.5);
 
     #pragma omp parallel for
     for(int i=0;i<l;++i){

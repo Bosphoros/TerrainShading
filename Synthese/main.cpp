@@ -24,8 +24,8 @@ Terrain* generationProcedural(){
 }
 
 void shoot(Terrain* const t, const QString& img){
-    Vector3D o(-3400, 2800, -2200);
-    Vector3D d(1,-1,1);
+    Vector3D o(-3400, -2200, 2800);
+    Vector3D d(1,1,-1);
 
     Vector3D soleil(100000000,0,0);
     QMatrix3x3 mat1;
@@ -40,7 +40,7 @@ void shoot(Terrain* const t, const QString& img){
     mat1(2,2)=1;
     soleil.rotate(mat1);
 
-    Vector3D dirCam(500,0,500);
+    Vector3D dirCam(500,500,0);
     Vector3D dist(o+d);
     Camera cam(o, dirCam, o.distanceToPoint(dist)*4);
     QImage result = cam.printScreen(t,soleil,192*10,108*10);
@@ -48,11 +48,11 @@ void shoot(Terrain* const t, const QString& img){
 }
 
 void shootMulti(Terrain* const t, const QString& img, int nbShoot){
-    Vector3D o(-3400, 2800, -2200);
+    Vector3D o(-3400, -2200, 2800);
 
     Vector3D soleil(100000000,0,0);
 
-    Vector3D dirCam(500,0,500);
+    Vector3D dirCam(500,500,0);
 
     QMatrix3x3 mat;
         mat(0,0)=cos(2*M_PI/nbShoot);
@@ -104,12 +104,12 @@ int main(int argc, char *argv[])
     /*int arg=1;
     QTime time;
 
-    time.restart();
+    /*time.restart();
     QString img=argv[arg++];
     Terrain* t=generationImage(img);
     std::cout << "Terrain from image generated : " << time.restart() << "ms." << std::endl;//*/
 
-      /*time.restart();
+      time.restart();
       Terrain* t=generationProcedural();
       std::cout << "Terrain generated : " << time.restart() << "ms." << std::endl;
      //*/

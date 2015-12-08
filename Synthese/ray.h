@@ -9,8 +9,8 @@ class Ray
 private:
     static double pas;/**< The length used for Ray Marching of the Terrains*/
 public:
-    const Vector3D origine; /**< The origin of the Ray*/
-    const Vector3D direction;/**< The direction of the Ray, normalized*/
+    Vector3D origine; /**< The origin of the Ray*/
+    Vector3D direction;/**< The direction of the Ray, normalized*/
 
     /**
      * Constructor of a Ray

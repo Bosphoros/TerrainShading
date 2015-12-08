@@ -5,6 +5,7 @@
 #include <cmath>
 #include "mathutils.h"
 #include "smoothnoise.h"
+#include "sky.h"
 
 #define M_PI 3.14159265358979323846
 
@@ -16,6 +17,7 @@ Camera::Camera(const Vector3D &o, const Vector3D &at, double d):origine(o),dw(d)
     v= (w^u).normalized();
     lh=1;
     lw=16/9;
+    sphereSamples = Vector3D::randSphere(100);
 }
 Vector3D mix(const Vector3D& a,const Vector3D& b, double d){
     double quadra=MathUtils::fonctionQuadratique(0,1,d);
@@ -23,7 +25,7 @@ Vector3D mix(const Vector3D& a,const Vector3D& b, double d){
 }
 
 
-QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& bBox, const Vector3D& s, int i, int j, int l, int h,double pMax) const
+QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& bBox, const Sky& sky, int i, int j, int l, int h,double pMax) const
 {
     double x=i*2*lw/l-lw;
     double y=j*2*lh/h-lh;
@@ -47,7 +49,7 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
         QColor couleur(0,0,0,255);
         return couleur.rgba();
     }
-    Vector3D dirSoleil=(s-inter).normalized();
+    /*Vector3D dirSoleil=(s-inter).normalized();
     double lu=normale*dirSoleil;
 
 
@@ -57,16 +59,56 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
     lu*=200.0;
 
     if(lu>255)
-        lu=255;
+        lu=255;*/
+
+    float accessibilite=1;
+    Ray raySphere(inter ,inter);
+    Vector3D inter2;
+    float cpt = 0;
+    float visibles = 0;
+
+
+    raySphere.origine = inter;
+    for(int i = 0; i < sphereSamples.size(); ++i) {
+        if(normale*sphereSamples[i] > 0) {
+            cpt++;
+            raySphere.origine=inter+1*sphereSamples[i];
+            raySphere.direction=sphereSamples[i];
+            if(!t->intersectAdvancedMax(raySphere,aBox,bBox,pMax,inter2,isBox,20))
+                visibles++;
+
+        }
+    }
+    accessibilite= visibles/cpt;//*/
+
+    Vector3D lux(0,0,0);
+    Vector3D luxRecu(0,0,0);
+    Vector3D up(0,0,1);
+    Vector3D tmp;
+    for(int i = 0; i < sphereSamples.size(); ++i) {
+        if(up*sphereSamples[i] > 0) {
+            raySphere.origine=inter+1*sphereSamples[i];
+            raySphere.direction=sphereSamples[i];
+            tmp = sky.getLight(-sphereSamples[i]);
+            lux += tmp;
+            if(!t->intersectAdvancedMax(raySphere,aBox,bBox,pMax,inter2,isBox,100000))
+                luxRecu += tmp;
+        }
+    }
+
+    luxRecu /= lux.length();
+
+
+
     Vector3D bas(74,97,77);
     Vector3D mil(91,75,55);
     Vector3D roche(180,180,180);
     // Vector3D roche(0,0,255);
     Vector3D hau(234,234,234);
-    Vector3D col;
+    Vector3D col(255,255,255);
     double intery=inter.z();
     intery+=-5+10*raw_noise_2d(inter.x()/80,inter.y()/80);
-    Vector3D up(0, 0, 1);
+
     float crossUp = 1-std::abs(up*normale);
 
     float angle = acos(crossUp);
@@ -79,12 +121,12 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
     else{
         col=mix(mil,hau,(intery-80)/20);
         col=mix(col, roche, crossUp);
-    }
+    }//*/
 
-    col*=((lu/255+0.4)/1.4);
+    //col*=((lu/255+0.4)/1.4);
 
-
-    QColor couleur(col.x(),col.y(),col.z(),255);
+    col=Vector3D::product(col/255,luxRecu)*accessibilite*1.2;
+    QColor couleur =col.toQColor();
     return couleur.rgba();
 
 
@@ -99,10 +141,11 @@ QImage Camera::printScreen(Terrain * const t, const Vector3D& s, int l, int h) c
     Vector3D aBox(t->getA().x(),t->getA().y(),min);
     Vector3D bBox(t->getB().x(),t->getB().y(),max*1.5);
 
-    #pragma omp parallel for
+    Sky sky(-s, 0.0);
+    #pragma omp parallel for schedule(dynamic)
     for(int i=0;i<l;++i){
         for(int j=0;j<h;++j){
-            im.setPixel(l-1-i,h-1-j,ptScreen(t,aBox,bBox,s,i,j,l,h,pMax));
+            im.setPixel(l-1-i,h-1-j,ptScreen(t,aBox,bBox,sky,i,j,l,h,pMax));
         }
     }
 

@@ -1,5 +1,5 @@
 #include "matrix3.h"
-
+#define M_PI 3.14159265358979323846
 Matrix3::Matrix3()
 {
     for (int i = 0; i < 9; i++)
@@ -58,7 +58,7 @@ const Matrix3 operator*(const Matrix3& m1, const Matrix3& m2)
        {
            for(int k=0; k<3; ++k)
            {
-               mat(i,j) += m1(i,k)*m2(k,j);
+               mat(j,i) += m1(i,k)*m2(k,j);
            }
        }
     }
@@ -72,7 +72,7 @@ const Vector3D operator*(const Matrix3& m, const Vector3D& v)
     {
         for(int j=0; j<3; ++j)
         {
-            result(i) += m(i,j) * v(i);
+            result(i) += m(i,j) * v(j);
         }
     }
     return result;
@@ -127,42 +127,48 @@ Matrix3 Matrix3::identity()
 
 Matrix3 Matrix3::rotateX(float angle)
 {
+    float cos1=cos(angle);
+    float sin1=sin(angle);
     Matrix3 mat = Matrix3();
     mat.values[0] = 1;
     mat.values[1] = 0;
     mat.values[2] = 0;
     mat.values[3] = 0;
-    mat.values[4] = cos(angle);
-    mat.values[5] = -sin(angle);
+    mat.values[4] = cos1;
+    mat.values[5] = -sin1;
     mat.values[6] = 0;
-    mat.values[7] = sin(angle);
-    mat.values[8] = cos(angle);
+    mat.values[7] = sin1;
+    mat.values[8] = cos1;
     return mat;
 }
 
 Matrix3 Matrix3::rotateY(float angle)
 {
+    float cos1=cos(angle);
+    float sin1=sin(angle);
     Matrix3 mat = Matrix3();
-    mat.values[0] = cos(angle);
+    mat.values[0] = cos1;
     mat.values[1] = 0;
-    mat.values[2] = sin(angle);
+    mat.values[2] = sin1;
     mat.values[3] = 0;
     mat.values[4] = 1;
     mat.values[5] = 0;
-    mat.values[6] = -sin(angle);
+    mat.values[6] = -sin1;
     mat.values[7] = 0;
-    mat.values[8] = cos(angle);
+    mat.values[8] = cos1;
     return mat;
 }
 
 Matrix3 Matrix3::rotateZ(float angle)
 {
+    float cos1=cos(angle);
+    float sin1=sin(angle);
     Matrix3 mat = Matrix3();
-    mat.values[0] = cos(angle);
-    mat.values[1] = -sin(angle);
+    mat.values[0] = cos1;
+    mat.values[1] = -sin1;
     mat.values[2] = 0;
-    mat.values[3] = sin(angle);
-    mat.values[4] = cos(angle);
+    mat.values[3] = sin1;
+    mat.values[4] = cos1;
     mat.values[5] = 0;
     mat.values[6] = 0;
     mat.values[7] = 0;
@@ -189,4 +195,33 @@ Matrix3 Matrix3::rotateAtoB(const Vector3D &a, const Vector3D &b)
 
     return identity() + mat + mat*mat*(1-c)*(1.0/s);
 
+}
+
+Matrix3 Matrix3::rotateZtoV(const Vector3D &v)
+{
+    Vector3D Z(0,0,1);
+
+    float angle = acosf(Z*v);
+    Vector3D axe = Z^v;
+    axe.normalize();
+    float a = axe.x();
+    float b = axe.y();
+    float c = axe.z();
+
+    float cosAngle = cos(angle);
+    float sinAngle = sin(angle);
+
+    Matrix3 mat;
+    mat(0,0) = a*a+(1-a*a)*cosAngle;
+    mat(0,1) = a*b*(1-cosAngle)-c*sinAngle;
+    mat(0,2) = a*c*(1-cosAngle)+b*sinAngle;
+    mat(1,0) = a*b*(1-cosAngle)+c*sinAngle;
+    mat(1,1) = b*b+(1-b*b)*cosAngle;
+    mat(1,2) = b*c*(1-cosAngle)-a*sinAngle;
+    mat(2,0) = a*c*(1-cosAngle)-b*sinAngle;
+    mat(2,1) = b*c*(1-cosAngle)+a*sinAngle;
+    mat(2,2) = c*c+(1-c*c)*cosAngle;
+
+
+     return mat;
 }

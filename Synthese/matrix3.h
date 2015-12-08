@@ -32,6 +32,7 @@ public:
     static Matrix3 rotateZ(float angle);
     static Matrix3 rotateXYZ(float angleX, float angleY, float angleZ);
     static Matrix3 rotateAtoB(const Vector3D &a, const Vector3D &b);
+    static Matrix3 rotateZtoV(const Vector3D& v);
 };
 
 #endif // MATRIX3X3_H

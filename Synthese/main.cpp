@@ -7,6 +7,7 @@
 #include "terrainnoisesmultiples.h"
 #include <vector>
 #include "meshbuilder.h"
+#include "matrix3.h"
 #define M_PI 3.14159265358979323846
 
 Terrain* generationImage(const QString& img){
@@ -14,7 +15,7 @@ Terrain* generationImage(const QString& img){
     Vector2D b(1000,1000);
     QImage im;
     im.load(img);
-    return new TerrainImage(im,100,0,a,b);
+    return new TerrainImage(im,200,0,a,b);
 }
 
 Terrain* generationProcedural(){
@@ -29,15 +30,15 @@ void shoot(Terrain* const t, const QString& img){
 
     Vector3D soleil(100000000,0,0);
     QMatrix3x3 mat1;
-    mat1(0,0)=cos(3*M_PI/4);
-    mat1(0,1)=-sin(3*M_PI/4);
-    mat1(0,2)=0;
-    mat1(1,0)=sin(3*M_PI/4);
-    mat1(1,1)=cos(3*M_PI/4);
+    mat1(0,0)=cos(-M_PI*3/4);
+    mat1(0,1)=0;
+    mat1(0,2)=sin(-M_PI*3/4);
+    mat1(1,0)=0;
+    mat1(1,1)=1;
     mat1(1,2)=0;
-    mat1(2,0)=0;
+    mat1(2,0)=-sin(-M_PI*3/4);
     mat1(2,1)=0;
-    mat1(2,2)=1;
+    mat1(2,2)=cos(-M_PI*3/4);
     soleil.rotate(mat1);
 
     Vector3D dirCam(500,500,0);
@@ -101,17 +102,17 @@ void generateMesh(Terrain* const t,const QString& obj,int echantillion){
 
 int main(int argc, char *argv[])
 {
-    /*int arg=1;
-    QTime time;
+    int arg=1;
+    QTime time;//*/
 
     /*time.restart();
     QString img=argv[arg++];
     Terrain* t=generationImage(img);
     std::cout << "Terrain from image generated : " << time.restart() << "ms." << std::endl;//*/
 
-      time.restart();
-      Terrain* t=generationProcedural();
-      std::cout << "Terrain generated : " << time.restart() << "ms." << std::endl;
+    time.restart();
+    Terrain* t=generationProcedural();
+    std::cout << "Terrain generated : " << time.restart() << "ms." << std::endl;
      //*/
 
 
@@ -120,7 +121,7 @@ int main(int argc, char *argv[])
     generateMesh(t,obj,300);
     std::cout << "Mesh generated : " << time.restart() << "ms." << std::endl;//*/
 
-    /*time.restart();
+    time.restart();
     QString destination=argv[arg++];
     shoot(t,destination);
     std::cout << "Image generated from ray launching : " << time.restart() << "ms." << std::endl;//*/
@@ -133,11 +134,23 @@ int main(int argc, char *argv[])
 
     //delete t;
 
-    Vector3D a(0,1,0);
-   Vector3D b(0.7,0,-2);
-   Vector3D z = b.normalized();
+    /*QList<Vector3D> points = Vector3D::randSphere(1000);
+        QList<Vector3D> points2 = Vector3D::scaleTranslate(points, Vector3D(3,4,-8), 2.6);
+        QList<int> topo;
+        QList<Vector3D> normales;
+        Mesh m1(points, topo, normales, "ololo");
+        Mesh m2(points2, topo, normales, "ololo2");
 
-   Vector3D y = (z^a).normalized();
-   std::cout <<y;
-    return 0;
+        MeshBuilder m;
+        m.saveMesh("m1.obj", m1);
+        m.saveMesh("m3.obj", m2);*/
+
+    /*float tab[9] = {1,0,0,
+                    0,1,0,
+                    1,0,1};
+    Matrix3 mat(tab);
+    Matrix3 result = mat * mat;
+    cout << result;
+    */
+   return 0;
 }

@@ -4,6 +4,7 @@
 #include <QImage>
 #include <QRgb>
 #include "terrain.h"
+#include "sky.h"
 
 /**
  * @brief The Camera class
@@ -18,6 +19,7 @@ private:
     double dw;/**< The distance between the origin of the camera and the center of the screen*/
     double lw;/**< The distance between the center of the screen and its borders along u*/
     double lh;/**< The distance between the center of the screen and its borders alogn v*/
+    QList<Vector3D> sphereSamples; /** A list of points sampling a sphere, used for ambient occlusion*/
 public:
     /**
     * Constructor of a Camera
@@ -41,7 +43,7 @@ public:
      * @see printScreen()
      * @return the QRgb value of the pixel
      */
-    QRgb ptScreen(Terrain* const t, const Vector3D &aBox, const Vector3D &bBox, const Vector3D &s, int i, int j, int l, int h, double pMax) const;
+    QRgb ptScreen(Terrain* const t, const Vector3D &aBox, const Vector3D &bBox, const Sky &sky, int i, int j, int l, int h, double pMax) const;
     /**
      * Crates a QImage representing the Camera's point of view of a Terrain
      * @param[in] t the Terrain the Camera has to launch ray towards

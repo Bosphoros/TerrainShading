@@ -26,22 +26,30 @@ Sky::Sky()
 
 }
 
-QColor clamp(QColor light)
+Vector3D clamp(Vector3D light)
 {
-    int r = (int)MathUtils::clamp(0,255, light.red());
-    int g = (int)MathUtils::clamp(0,255, light.green());
-    int b = (int)MathUtils::clamp(0,255, light.blue());
-    return QColor(r,g,b,0);
+    float r = MathUtils::clamp(0,1, light.x());
+    float g = MathUtils::clamp(0,1, light.y());
+    float b = MathUtils::clamp(0,1, light.z());
+    return Vector3D(r,g,b);
 }
 
-QColor Sky::getLight(Vector3D direction)
+Vector3D mixColor(const Vector3D& a,const Vector3D& b, double d){
+    double quadra=MathUtils::fonctionQuadratique(0,1,d);
+    return b*quadra+a*(1-quadra);
+}
+
+Vector3D Sky::getLight(Vector3D direction) const
 {
     direction.normalize();
-    float red = 255*nuage + 255 * (1-nuage) * (dirSol*direction);
-    float green = 255*nuage + 255 * (1-nuage) * (dirSol*direction);
-    float blue = 255*nuage + 255 * (1-nuage) * (dirSol*direction);
+    Vector3D jaune(1,1,0.8);
+    Vector3D bleu(0.8,0.9,1);
+    Vector3D light=mixColor(bleu,jaune,nuage + (1-nuage) * (dirSol*direction));
+    /*float red =nuage + (1-nuage) * (dirSol*direction)*(dirSol*direction)*(dirSol*direction);
+    float green = nuage + (1-nuage) * (dirSol*direction) * (dirSol*direction)* (dirSol*direction);
+    float blue =nuage + (1-nuage) * (dirSol*direction);*/
 
-    QColor light(red, green, blue);
+    //Vector3D light(red, green, blue*0.3);
 
     return clamp(light);
 }

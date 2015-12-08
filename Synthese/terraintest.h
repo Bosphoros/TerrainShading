@@ -49,7 +49,7 @@ inline double TerrainTest::getHauteur(const Vector2D &p) const
     //th=MathUtils::ridge(th, 2+0.5*raw_noise_2d(p.x()*(1/8.0), p.y()*(1/8.0)));
     h += th;
 
-    th=1*raw_noise_2d(pwarp.x()*(1/40.0)+1.914, pwarp.y()*(1/40.0))*MathUtils::fonctionQuadratiqueInv(0, 150, h);
+    th=1*raw_noise_2d(pwarp.x()*(1/40.0)+1.914, pwarp.y()*(1/40.0))*MathUtils::fonctionQuadratiqueInv(150, 80, h);
     h += th;
     return h;
 }

@@ -32,7 +32,8 @@ SOURCES += main.cpp \
     mesh.cpp \
     meshbuilder.cpp \
     terraintest.cpp \
-    matrix3.cpp
+    matrix3.cpp \
+    sky.cpp
 
 HEADERS += \
     terrain.h \
@@ -48,4 +49,5 @@ HEADERS += \
     mesh.h \
     meshbuilder.h \
     terraintest.h \
-    matrix3.h
+    matrix3.h \
+    sky.h

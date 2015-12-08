@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include <QMatrix3x3>
+#include <QColor>
 
 class Vector2D;
 /**
@@ -264,8 +265,12 @@ public:
      */
     friend inline std::ostream& operator<<(std::ostream& out, const Vector3D& v);
 
-    static QList<Vector3D> rotateScaleTranslate(QList<Vector3D> points, Vector3D center, float radius, Vector3D normal);
+    QColor toQColor();
+
+    static QList<Vector3D> scaleTranslate(QList<Vector3D> points, Vector3D center, float radius);
     static QList<Vector3D> randHemisphere(int nbPoints);
+    static QList<Vector3D> randSphere(int nbPoints);
+    static Vector3D product(const Vector3D& a,const Vector3D& b);
 
 private:
     double xp; /**< The x coordinate of the vector */

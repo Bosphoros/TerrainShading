@@ -55,30 +55,21 @@ double Vector3D::distanceToLine(const Vector3D &point, const Vector3D &direction
    return distanceToPoint(point+t*direction);
 }
 
+QColor Vector3D::toQColor()
+{
+    return QColor(xp*255,yp*255,zp*255,255);
+}
 
-QList<Vector3D> Vector3D::rotateScaleTranslate(QList<Vector3D> points, Vector3D center, float radius, Vector3D normal)
+
+QList<Vector3D> Vector3D::scaleTranslate(QList<Vector3D> points, Vector3D center, float radius)
 {
 
-    /*Matrix3 matcam;
-        matcam(0,0)=cos(M_PI/2.52);
-        matcam(0,1)=0;
-        matcam(0,2)=sin(M_PI/2.52);
-        matcam(1,0)=0;
-        matcam(1,1)=1;
-        matcam(1,2)=0;
-        matcam(2,0)=-sin(M_PI/2.52);
-        matcam(2,1)=0;
-        matcam(2,2)=cos(M_PI/2.52);
-
     QList<Vector3D> newPoints;
-
-    Matrix3 rotate = Matrix3::rotateAtoB(Vector3D(0,1,0), normal);
-
     for(int i = 0; i < points.size(); i++)
     {
-        newPoints << matcam * (center + points[i]*radius);
+        newPoints << center + (points[i]*radius);
     }
-    return newPoints;*/
+    return newPoints;
 }
 
 QList<Vector3D> Vector3D::randHemisphere(int nbPoints)
@@ -119,6 +110,51 @@ QList<Vector3D> Vector3D::randHemisphere(int nbPoints)
     }
 
     return points;
+}
+
+QList<Vector3D> Vector3D::randSphere(int nbPoints)
+{
+    QList<Vector3D> points;
+    float rCarre = 1.0/(float)nbPoints;
+
+    for(int j=0;j<nbPoints*50;++j){
+
+        float phi = MathUtils::random(0, 2*M_PI);
+        float theta = MathUtils::random(-M_PI, M_PI);
+
+        float x = std::cos(phi) * std::sin(theta);
+        float y = std::sin(phi) * std::sin(theta);
+        float z = std::cos(theta);
+
+        Vector3D pointTemp (x,z ,y);
+
+        bool b=true;
+
+
+        for(int i=0;i<points.size();++i){
+            if(pointTemp.distanceToPointSquared(points[i])<4*rCarre){
+                //goto continue_tag;
+                b=false;
+                break;
+            }
+
+        }
+        //points<<pointTemp;
+
+        if(b){
+            points<<pointTemp;
+        }
+
+        //continue_tag:;
+
+    }
+
+    return points;
+}
+
+Vector3D Vector3D::product(const Vector3D &a, const Vector3D &b)
+{
+    return Vector3D(a.x()*b.x(),a.y()*b.y(),a.z()*b.z());
 }
 
 

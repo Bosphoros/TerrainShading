@@ -60,6 +60,9 @@ public:
      */
     void translate(const Vector3D& v);
 
+    float ambientOcclusion(const Vector3D& inter, const Vector3D& normale, Terrain* t, const Vector3D& aBox, const Vector3D& bBox, double pMax) const;
+    Vector3D skyShading(const Sky &sky, const Vector3D& inter, Terrain* t, const Vector3D& aBox, const Vector3D& bBox, double pMax) const;
+
 };
 
 #endif // CAMERA_H

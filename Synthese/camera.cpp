@@ -19,6 +19,7 @@ Camera::Camera(const Vector3D &o, const Vector3D &at, double d):origine(o),dw(d)
     lw=16/9;
     sphereSamples = Vector3D::randSphere(100);
 }
+
 Vector3D mix(const Vector3D& a,const Vector3D& b, double d){
     double quadra=MathUtils::fonctionQuadratique(0,1,d);
     return b*quadra+a*(1-quadra);
@@ -38,6 +39,52 @@ Vector3D specular(const Sky& sky, const Vector3D& normal, const Vector3D& dirCam
     return Vector3D::product(specularColor, sky.getLight(directionLum)) * MathUtils::power(MathUtils::clamp(0, 1, reflected * dirCamNormalized), coeff);
 }
 
+float Camera::ambientOcclusion(const Vector3D& inter, const Vector3D& normale, Terrain* t, const Vector3D& aBox, const Vector3D& bBox, double pMax) const
+{
+    Ray raySphere(inter ,inter);
+    Vector3D inter2;
+    float cpt = 0;
+    float visibles = 0;
+    bool isBox=false;
+
+    raySphere.origine = inter;
+    for(int i = 0; i < sphereSamples.size(); ++i) {
+        if(normale*sphereSamples[i] > 0) {
+            cpt++;
+            raySphere.origine=inter+1*sphereSamples[i];
+            raySphere.direction=sphereSamples[i];
+            if(!t->intersectAdvancedMax(raySphere,aBox,bBox,pMax,inter2,isBox,20))
+                visibles++;
+
+        }
+    }
+    return visibles/cpt;
+}
+
+Vector3D Camera::skyShading(const Sky& sky, const Vector3D& inter, Terrain* t, const Vector3D& aBox, const Vector3D& bBox, double pMax) const
+{
+    Ray raySphere(inter ,inter);
+    Vector3D inter2;
+    bool isBox=false;
+
+    Vector3D lux(0,0,0);
+    Vector3D luxRecu(0,0,0);
+    Vector3D up(0,0,1);
+    Vector3D tmp;
+    for(int i = 0; i < sphereSamples.size(); ++i) {
+        if(up*sphereSamples[i] > 0) {
+            raySphere.origine=inter+1*sphereSamples[i];
+            raySphere.direction=sphereSamples[i];
+            tmp = sky.getLight(-sphereSamples[i]);
+            lux += tmp;
+            if(!t->intersectAdvancedMax(raySphere,aBox,bBox,pMax,inter2,isBox,100000))
+                luxRecu += tmp;
+        }
+    }
+
+    luxRecu /= lux.length();
+    return luxRecu;
+}
 
 QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& bBox, const Sky& sky, int i, int j, int l, int h,double pMax) const
 {
@@ -63,47 +110,8 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
         QColor couleur(0,0,0,255);
         return couleur.rgba();
     }
-    Vector3D dirSoleil=sky.getDirSol().normalized();
-    double lu=normale*dirSoleil;
 
-    float accessibilite=1;
-    /*Ray raySphere(inter ,inter);
-    Vector3D inter2;
-    float cpt = 0;
-    float visibles = 0;
-
-
-    raySphere.origine = inter;
-    for(int i = 0; i < sphereSamples.size(); ++i) {
-        if(normale*sphereSamples[i] > 0) {
-            cpt++;
-            raySphere.origine=inter+1*sphereSamples[i];
-            raySphere.direction=sphereSamples[i];
-            if(!t->intersectAdvancedMax(raySphere,aBox,bBox,pMax,inter2,isBox,20))
-                visibles++;
-
-        }
-    }
-    accessibilite= visibles/cpt;//*/
-
-    Vector3D lux(0,0,0);
-    Vector3D luxRecu(1,1,1);
     Vector3D up(0,0,1);
-    /*Vector3D tmp;
-    for(int i = 0; i < sphereSamples.size(); ++i) {
-        if(up*sphereSamples[i] > 0) {
-            raySphere.origine=inter+1*sphereSamples[i];
-            raySphere.direction=sphereSamples[i];
-            tmp = sky.getLight(-sphereSamples[i]);
-            lux += tmp;
-            if(!t->intersectAdvancedMax(raySphere,aBox,bBox,pMax,inter2,isBox,100000))
-                luxRecu += tmp;
-        }
-    }
-
-    luxRecu /= lux.length();//*/
-
-
 
     Vector3D bas(74,97,77);
     Vector3D mil(91,75,55);
@@ -126,18 +134,17 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
     else{
         col=mix(mil,hau,(intery-80)/20);
         col=mix(col, roche, crossUp);
-    }//*/
+    }
 
-    //col*=((lu/255+0.4)/1.4);
-
-    col = 0.4 * Vector3D(1,1,1);//Vector3D::product(col/255,luxRecu)*accessibilite;
-    col += 0.4 * diffuse(sky, normale, Vector3D(1,1,1));
-    col += 0.2 * specular(sky, normale, -r.direction, Vector3D(1, 1, 1), 8);
+    Vector3D luxRecu = skyShading(sky, inter, t, aBox, bBox, pMax);
+    Vector3D colF = 0.4 * Vector3D::product(col/255,luxRecu);
+    //colF *= ambientOcclusion(inter, normale, t, aBox, bBox, pMax);
+    //Vector3D colF = 0.4 * Vector3D(1,1,1);
+    colF += 0.4 * diffuse(sky, normale, col/255);
+    colF += 0.2 * specular(sky, normale, -r.direction,Vector3D(1,1,1), 8);
     //std::cout << col << std::endl;
-    QColor couleur =col.toQColor();
+    QColor couleur = colF.toQColor();
     return couleur.rgba();
-
-
 }
 
 QImage Camera::printScreen(Terrain * const t, const Vector3D& s, int l, int h) const

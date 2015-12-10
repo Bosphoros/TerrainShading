@@ -66,6 +66,7 @@ public:
     static double clamp(double min, double max, double val);
     static double random(double min, double max);
 
+    static double power(double x, unsigned int y);
 };
 
 #endif // MATHUTILS_H

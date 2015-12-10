@@ -52,3 +52,13 @@ double MathUtils::random(double min, double max)
     double f = (double)rand() / RAND_MAX;
     return min + f * (max - min);
 }
+
+double MathUtils::power(double x, unsigned int y)
+{
+    double mult = 1;
+    for (int i = 0; i < y; i++)
+    {
+        mult *= x;
+    }
+    return mult;
+}

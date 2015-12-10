@@ -24,6 +24,20 @@ Vector3D mix(const Vector3D& a,const Vector3D& b, double d){
     return b*quadra+a*(1-quadra);
 }
 
+Vector3D diffuse(const Sky& sky, const Vector3D& normal, const Vector3D diffuseColor)
+{
+    Vector3D directionLum = -sky.getDirSol().normalized();
+    return Vector3D::product(diffuseColor, sky.getLight(directionLum)) * (directionLum * normal);
+}
+
+Vector3D specular(const Sky& sky, const Vector3D& normal, const Vector3D& dirCamera, const Vector3D& specularColor, unsigned int coeff)
+{
+    Vector3D dirCamNormalized = dirCamera.normalized();
+    Vector3D directionLum = -sky.getDirSol().normalized();
+    Vector3D reflected = ((normal * directionLum) * normal * 2 - directionLum).normalized();
+    return Vector3D::product(specularColor, sky.getLight(directionLum)) * MathUtils::power(MathUtils::clamp(0, 1, reflected * dirCamNormalized), coeff);
+}
+
 
 QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& bBox, const Sky& sky, int i, int j, int l, int h,double pMax) const
 {
@@ -49,20 +63,11 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
         QColor couleur(0,0,0,255);
         return couleur.rgba();
     }
-    /*Vector3D dirSoleil=(s-inter).normalized();
+    Vector3D dirSoleil=sky.getDirSol().normalized();
     double lu=normale*dirSoleil;
 
-
-    if(lu<0)
-        lu=0;
-
-    lu*=200.0;
-
-    if(lu>255)
-        lu=255;*/
-
     float accessibilite=1;
-    Ray raySphere(inter ,inter);
+    /*Ray raySphere(inter ,inter);
     Vector3D inter2;
     float cpt = 0;
     float visibles = 0;
@@ -82,9 +87,9 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
     accessibilite= visibles/cpt;//*/
 
     Vector3D lux(0,0,0);
-    Vector3D luxRecu(0,0,0);
+    Vector3D luxRecu(1,1,1);
     Vector3D up(0,0,1);
-    Vector3D tmp;
+    /*Vector3D tmp;
     for(int i = 0; i < sphereSamples.size(); ++i) {
         if(up*sphereSamples[i] > 0) {
             raySphere.origine=inter+1*sphereSamples[i];
@@ -96,7 +101,7 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
         }
     }
 
-    luxRecu /= lux.length();
+    luxRecu /= lux.length();//*/
 
 
 
@@ -125,7 +130,10 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
 
     //col*=((lu/255+0.4)/1.4);
 
-    col=Vector3D::product(col/255,luxRecu)*accessibilite*1.2;
+    col = 0.4 * Vector3D(1,1,1);//Vector3D::product(col/255,luxRecu)*accessibilite;
+    col += 0.4 * diffuse(sky, normale, Vector3D(1,1,1));
+    col += 0.2 * specular(sky, normale, -r.direction, Vector3D(1, 1, 1), 8);
+    //std::cout << col << std::endl;
     QColor couleur =col.toQColor();
     return couleur.rgba();
 

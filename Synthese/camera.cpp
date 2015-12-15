@@ -61,7 +61,7 @@ float Camera::ambientOcclusion(const Vector3D& inter, const Vector3D& normale,co
     return visibles/cpt;
 }
 
-Vector3D Camera::fog(const Vector3D & color, float distance, float distMin, float distMax) const
+Vector3D Camera::fog(const Vector3D & color, const Vector3D& colorFog, float attenuation, float distance, float distMin, float distMax) const
 {
     // Fog quadratique
     if (distance < distMin)
@@ -219,7 +219,7 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
     }
     Vector3D colShading = shadingCanyon(inter, normale, sky, t, aBox, bBox, pMax);
     float dist = r.origine.distanceToPoint(inter);
-    //Vector3D foggy = fog(colShading, Vector3D(.9,.9,.9), 0.2, dist, 4000, 6000);
+    Vector3D foggy = fog(colShading, Vector3D(.8, .8, 1), 0.2, dist, 4000, 6000);
     QColor couleur = colShading.toQColor();
     return couleur.rgba();
 }

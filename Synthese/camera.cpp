@@ -61,8 +61,9 @@ float Camera::ambientOcclusion(const Vector3D& inter, const Vector3D& normale,co
     return visibles/cpt;
 }
 
-Vector3D fog(const Vector3D & color, float distance, float distMin, float distMax)
+Vector3D Camera::fog(const Vector3D & color, float distance, float distMin, float distMax) const
 {
+    // Fog quadratique
     if (distance < distMin)
         return color;
 
@@ -75,6 +76,12 @@ Vector3D fog(const Vector3D & color, float distance, float distMin, float distMa
         return color * (1-coeff) + colorFog * coeff;
     }
     return (1.0 - attenuation) * color + attenuation * colorFog;
+
+    // Fog exponentiel
+    /*float fact=10000;
+    float att=expf(-(distance-distMin)/fact);
+    MathUtils::clamp(0,1,att);
+    return att*color+(1-att)*colorFog;*/
 }
 
 Vector3D Camera::skyShading(const Sky& sky, const Vector3D& inter, const Terrain* t, const Vector3D& aBox, const Vector3D& bBox, double pMax) const

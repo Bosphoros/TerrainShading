@@ -13,6 +13,7 @@ public:
     Sky();
     Sky(Vector3D dir, float n) : dirSol(dir.normalized()), nuage(n) {}
     Vector3D getLight(Vector3D direction) const;
+    Vector3D getColorLight(Vector3D direction) const;
     Vector3D getDirSol() const;
     void setDirSol(const Vector3D &value);
     float getNuage() const;

@@ -86,10 +86,20 @@ Vector3D Camera::skyShading(const Sky& sky, const Vector3D& inter, Terrain* t, c
     return luxRecu;
 }
 
+QRgb colorSky(const Sky& sky, const Ray & ray)
+{
+
+    Vector3D col=sky.getColorLight(-ray.direction);
+
+    return col.toQColor().rgba();
+}
+
+
 QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& bBox, const Sky& sky, int i, int j, int l, int h,double pMax) const
 {
     double x=i*2*lw/l-lw;
     double y=j*2*lh/h-lh;
+
 
     Vector3D pt =origine+(dw*w)+(x*u)+(y*v);
     Vector3D dir(pt-origine);
@@ -101,7 +111,8 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
     //if(!t->intersectRayMarching(r,aBox,bBox,inter,isBox)){
     if(!t->intersectAdvanced(r,aBox,bBox,pMax,inter,isBox)){
         QColor couleur(255,255,255,0);
-        return couleur.rgba();
+        return colorSky(sky, r);
+        //return couleur.rgba();
     }
 
     Vector3D normale;

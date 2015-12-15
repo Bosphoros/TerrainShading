@@ -25,8 +25,11 @@ Terrain* generationProcedural(){
 }
 
 void shoot(Terrain* const t, const QString& img){
-    Vector3D o(-3400, -2200, 2800);
+    //Vector3D o(-3400, -2200, 2800);
+    float z=t->getHauteur(Vector2D(500,300))+40;
+    Vector3D o(500,300,z);
     Vector3D d(1,1,-1);
+
 
     Vector3D soleil(100000000,0,0);
     QMatrix3x3 mat1;
@@ -41,10 +44,10 @@ void shoot(Terrain* const t, const QString& img){
     mat1(2,2)=cos(-M_PI*3/4);
     soleil.rotate(mat1);
 
-    Vector3D dirCam(500,500,0);
+    Vector3D dirCam(500,500,z+25);
     Vector3D dist(o+d);
     Camera cam(o, dirCam, o.distanceToPoint(dist)*4);
-    QImage result = cam.printScreen(t,soleil,192*10,108*10);
+    QImage result = cam.printScreen(t,soleil,192*5,108*5);
     result.save(img);
 }
 
@@ -79,10 +82,17 @@ void shootMulti(Terrain* const t, const QString& img, int nbShoot){
 
 
     for(int i=0; i<nbShoot;++i){
+
+        float z=t->getHauteur(Vector2D(500,300+i))+40;
+        float z1=t->getHauteur(Vector2D(500,400))+5;
+        o=Vector3D(500,300+i,z);
+
+        dirCam=Vector3D (500,400,z1);
+
         Camera cam(o, dirCam, 6.92820);
         soleil.rotate(mat);
-        o.rotate(matcam);
-        QImage result = cam.printScreen(t,soleil,192*10,108*10);
+        //o.rotate(matcam);
+        QImage result = cam.printScreen(t,soleil,192*2,108*2);
         QString nameImage =img;
         nameImage+=std::to_string(i).c_str();
         nameImage+=".png";
@@ -105,12 +115,12 @@ int main(int argc, char *argv[])
     int arg=1;
     QTime time;//*/
 
-    time.restart();
+    /*time.restart();
     QString img=argv[arg++];
     Terrain* t=generationImage(img);
     std::cout << "Terrain from image generated : " << time.restart() << "ms." << std::endl;//*/
 
-    /*time.restart();
+    time.restart();
     Terrain* t=generationProcedural();
     std::cout << "Terrain generated : " << time.restart() << "ms." << std::endl;
      //*/
@@ -121,12 +131,12 @@ int main(int argc, char *argv[])
     generateMesh(t,obj,300);
     std::cout << "Mesh generated : " << time.restart() << "ms." << std::endl;//*/
 
-    time.restart();
+    /*time.restart();
     QString destination=argv[arg++];
     shoot(t,destination);
     std::cout << "Image generated from ray launching : " << time.restart() << "ms." << std::endl;//*/
 
-    /*time.restart();
+    time.restart();
     QString destination=argv[arg++];
 
     shootMulti(t,destination,100);

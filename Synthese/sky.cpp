@@ -35,8 +35,23 @@ Vector3D clamp(Vector3D light)
 }
 
 Vector3D mixColor(const Vector3D& a,const Vector3D& b, double d){
-    double quadra=MathUtils::fonctionQuadratique(0,1,d);
+    double quadra=MathUtils::fonctionQuadratique(0,1,MathUtils::clamp(0,1,d));
     return b*quadra+a*(1-quadra);
+}
+
+Vector3D Sky::getColorLight(Vector3D direction) const
+{
+    direction.normalize();
+    Vector3D jaune(1,1,0.8);
+    Vector3D bleu(0.8,0.9,1);
+    Vector3D light=mixColor(bleu,jaune,nuage + (1-nuage) * (dirSol*direction));
+    /*float red =nuage + (1-nuage) * (dirSol*direction)*(dirSol*direction)*(dirSol*direction);
+    float green = nuage + (1-nuage) * (dirSol*direction) * (dirSol*direction)* (dirSol*direction);
+    float blue =nuage + (1-nuage) * (dirSol*direction);*/
+
+    //Vector3D light(red, green, blue*0.3);
+
+    return clamp(light);
 }
 
 Vector3D Sky::getLight(Vector3D direction) const

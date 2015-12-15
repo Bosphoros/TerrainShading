@@ -120,6 +120,10 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
     Vector3D hau(255,255,255);
     Vector3D col(255,255,255);
 
+    rocheSombre = Vector3D::product(rocheSombre, Vector3D(1.3,.9,.6));
+    roche = Vector3D::product(roche, Vector3D(1.2,.9,.6));
+    bas = Vector3D(255, 255, 220);
+
     double valColorBas = raw_noise_2d(inter.x()/10, inter.y()/10);
     double valColorMil = raw_noise_2d((inter.x()+150)/10, (inter.y()+25)/10);
     bas = 0.95 * bas + 0.05 * Vector3D(valColorBas * 255, valColorBas * 255, valColorBas * 255);
@@ -136,21 +140,24 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
     float noise1, noise2;
     noise1 = -3+6*raw_noise_2d(inter.x()/30, inter.y()/30);
     noise2 = -1+2*raw_noise_2d(inter.y()/10,inter.x()/10);
-    roche = mix(roche, rocheSombre, raw_noise_2d((inter.z()+noise1+noise2)/10, (inter.z()+noise1+noise2)/10));
+    float coefNoise = raw_noise_2d((inter.z()+noise1+noise2)/20, (inter.z()+noise1+noise2)/20);
+    float noiseGrisRoche = -5+10*raw_noise_2d(inter.x()/10, inter.y()/10);
+    roche = mix(roche, rocheSombre, coefNoise*coefNoise) + Vector3D(noiseGrisRoche, noiseGrisRoche, noiseGrisRoche);
     if(intery<80){
-        col=mix(bas,mil,intery/80);
-        col=mix(col, roche, crossUp);
+        col=mix(bas,mil,intery/(80*2));
+        col=mix(col, roche, crossUp*crossUp*crossUp);
     }
     else{
-        col=mix(mil, roche, crossUp);
-        col = mix(col, hau, (intery-80)/20);
+        col=mix(mil, roche, crossUp*crossUp*crossUp);
+        col = mix(col, hau, (intery-(80*2))/(20*2));
     }
 
+    //col = Vector3D(1,1,1);
     Vector3D luxRecu = skyShading(sky, inter, t, aBox, bBox, pMax);
-    Vector3D colF = 0.3 * Vector3D::product(col/255,luxRecu);
-    //colF *= ambientOcclusion(inter, normale, t, aBox, bBox, pMax);
+    Vector3D colF = 0.5 * Vector3D::product(col/255,luxRecu);
+    colF *= ambientOcclusion(inter, normale, t, aBox, bBox, pMax);
     colF += 0.5 * diffuse(sky, normale, col/255);
-    colF += 0.2 * specular(sky, normale, -r.direction,Vector3D(1,1,1), 8);
+    //colF += 0.2 * specular(sky, normale, -r.direction,Vector3D(1,1,1), 8);
     //std::cout << col << std::endl;
     QColor couleur = colF.toQColor();
     return couleur.rgba();

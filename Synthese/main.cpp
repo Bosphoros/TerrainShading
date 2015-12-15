@@ -15,7 +15,7 @@ Terrain* generationImage(const QString& img){
     Vector2D b(1000,1000);
     QImage im;
     im.load(img);
-    return new TerrainImage(im,200,0,a,b);
+    return new TerrainImage(im,80,-120,a,b);
 }
 
 Terrain* generationProcedural(){
@@ -105,12 +105,12 @@ int main(int argc, char *argv[])
     int arg=1;
     QTime time;//*/
 
-    /*time.restart();
+    time.restart();
     QString img=argv[arg++];
     Terrain* t=generationImage(img);
     std::cout << "Terrain from image generated : " << time.restart() << "ms." << std::endl;//*/
 
-    time.restart();
+    /*time.restart();
     Terrain* t=generationProcedural();
     std::cout << "Terrain generated : " << time.restart() << "ms." << std::endl;
      //*/

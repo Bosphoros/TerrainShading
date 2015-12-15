@@ -57,7 +57,7 @@ double Vector3D::distanceToLine(const Vector3D &point, const Vector3D &direction
 
 QColor Vector3D::toQColor()
 {
-    return QColor(xp*255,yp*255,zp*255,255);
+    return QColor(MathUtils::clamp(0, 255, xp*255),MathUtils::clamp(0, 255, yp*255),MathUtils::clamp(0, 255, zp*255),255);
 }
 
 

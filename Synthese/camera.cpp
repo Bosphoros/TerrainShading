@@ -217,7 +217,7 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
     if(!t->intersectAdvanced(r,aBox,bBox,pMax,inter,isBox)){
         //QColor couleur(255,255,255,0);
         //return couleur.rgba();
-        return colorSky(sky,ray);
+        return colorSky(sky,r);
     }
 
     Vector3D normale;
@@ -226,7 +226,7 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
         QColor couleur(0,0,0,255);
         return couleur.rgba();
     }
-    Vector3D colShading = shadingCanyon(inter, normale, sky, t, aBox, bBox, pMax);
+    Vector3D colShading = shadingMountain(inter, normale, sky, t, aBox, bBox, pMax, r);
     float dist = r.origine.distanceToPoint(inter);
     Vector3D foggy = fog(colShading, Vector3D(.8, .8, 1), 0.2, dist, 4000, 6000);
     QColor couleur = colShading.toQColor();

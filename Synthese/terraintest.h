@@ -62,12 +62,12 @@ inline double TerrainTest::getHauteurMin() const
 
 inline double TerrainTest::getHauteurMax() const
 {
-    return 510;
+    return 510*2;
 }
 
 inline double TerrainTest::getPenteMax() const
 {
-    return 510.0/600.0*2.0;
+    return 510.0/600.0*2.0*2;
 }
 
 

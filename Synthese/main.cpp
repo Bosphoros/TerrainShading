@@ -25,9 +25,9 @@ Terrain* generationProcedural(){
 }
 
 void shoot(Terrain* const t, const QString& img){
-    //Vector3D o(-3400, -2200, 2800);
+    Vector3D o(-3400, -2200, 2800);
     float z=t->getHauteur(Vector2D(500,300))+40;
-    Vector3D o(500,300,z);
+    //Vector3D o(500,300,z);
     Vector3D d(1,1,-1);
 
 
@@ -44,10 +44,10 @@ void shoot(Terrain* const t, const QString& img){
     mat1(2,2)=cos(-M_PI*3/4);
     soleil.rotate(mat1);
 
-    Vector3D dirCam(500,500,z+25);
+    Vector3D dirCam(500,500,z);
     Vector3D dist(o+d);
     Camera cam(o, dirCam, o.distanceToPoint(dist)*4);
-    QImage result = cam.printScreen(t,soleil,192*5,108*5);
+    QImage result = cam.printScreen(t,soleil,192*10,108*10);
     result.save(img);
 }
 
@@ -131,12 +131,12 @@ int main(int argc, char *argv[])
     generateMesh(t,obj,300);
     std::cout << "Mesh generated : " << time.restart() << "ms." << std::endl;//*/
 
-    /*time.restart();
+    time.restart();
     QString destination=argv[arg++];
     shoot(t,destination);
     std::cout << "Image generated from ray launching : " << time.restart() << "ms." << std::endl;//*/
 
-    time.restart();
+    /*time.restart();
     QString destination=argv[arg++];
 
     shootMulti(t,destination,100);

@@ -8,7 +8,7 @@ MathUtils::MathUtils()
 
 double MathUtils::fonctionQuadratique(double min, double max, double x) {
 
-    return x<min?0:x>=max?1:1-pow((1-pow((x-min)/(max-min),2)),2);
+    return x<min?0:x>=max?1:1-power((1-power((x-min)/(max-min),2)),2);
 }
 
 double MathUtils::fonctionQuadratiqueInv(double min, double max, double x) {

@@ -60,8 +60,11 @@ public:
      */
     void translate(const Vector3D& v);
 
-    float ambientOcclusion(const Vector3D& inter, const Vector3D& normale, Terrain* t, const Vector3D& aBox, const Vector3D& bBox, double pMax) const;
-    Vector3D skyShading(const Sky &sky, const Vector3D& inter, Terrain* t, const Vector3D& aBox, const Vector3D& bBox, double pMax) const;
+    float ambientOcclusion(const Vector3D& inter, const Vector3D& normale, const Terrain* t, const Vector3D& aBox, const Vector3D& bBox, double pMax) const;
+    Vector3D skyShading(const Sky &sky, const Vector3D& inter, const Terrain* t, const Vector3D& aBox, const Vector3D& bBox, double pMax) const;
+    Vector3D shadingCanyon(const Vector3D& inter, const Vector3D& normale, const Sky &sky, const Terrain *t, const Vector3D &aBox, const Vector3D &bBox, const double pMax) const;
+    Vector3D shadingMountain(const Vector3D& inter, const Vector3D& normale, const Sky &sky, const Terrain *t, const Vector3D &aBox, const Vector3D &bBox, const double pMax, const Ray& r) const;
+    Vector3D fog(const Vector3D & color, const Vector3D& colorFog, float attenuation, float distance, float distMin, float distMax) const;
 
 };
 

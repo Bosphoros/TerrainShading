@@ -57,9 +57,11 @@ Vector3D Sky::getColorLight(Vector3D direction) const
 Vector3D Sky::getLight(Vector3D direction) const
 {
     direction.normalize();
-    Vector3D jaune(1,1,0.8);
-    Vector3D bleu(0.8,0.9,1);
-    Vector3D light=mixColor(bleu,jaune,nuage + (1-nuage) * (dirSol*direction));
+    /*Vector3D jaune(1,1,0.8);
+    Vector3D bleu(0.8,0.9,1);*/
+    Vector3D gris(.9,.9,.9);
+    Vector3D white(1,1,1);
+    Vector3D light=mixColor(gris,white,nuage + (1-nuage) * (dirSol*direction));
     /*float red =nuage + (1-nuage) * (dirSol*direction)*(dirSol*direction)*(dirSol*direction);
     float green = nuage + (1-nuage) * (dirSol*direction) * (dirSol*direction)* (dirSol*direction);
     float blue =nuage + (1-nuage) * (dirSol*direction);*/

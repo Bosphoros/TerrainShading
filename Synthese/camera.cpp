@@ -39,7 +39,7 @@ Vector3D specular(const Sky& sky, const Vector3D& normal, const Vector3D& dirCam
     return Vector3D::product(specularColor, sky.getLight(directionLum)) * MathUtils::power(MathUtils::clamp(0, 1, reflected * dirCamNormalized), coeff);
 }
 
-float Camera::ambientOcclusion(const Vector3D& inter, const Vector3D& normale, Terrain* t, const Vector3D& aBox, const Vector3D& bBox, double pMax) const
+float Camera::ambientOcclusion(const Vector3D& inter, const Vector3D& normale,const Terrain* t, const Vector3D& aBox, const Vector3D& bBox, double pMax) const
 {
     Ray raySphere(inter ,inter);
     Vector3D inter2;
@@ -61,7 +61,7 @@ float Camera::ambientOcclusion(const Vector3D& inter, const Vector3D& normale, T
     return visibles/cpt;
 }
 
-Vector3D Camera::skyShading(const Sky& sky, const Vector3D& inter, Terrain* t, const Vector3D& aBox, const Vector3D& bBox, double pMax) const
+Vector3D Camera::skyShading(const Sky& sky, const Vector3D& inter, const Terrain* t, const Vector3D& aBox, const Vector3D& bBox, double pMax) const
 {
     Ray raySphere(inter ,inter);
     Vector3D inter2;
@@ -84,6 +84,93 @@ Vector3D Camera::skyShading(const Sky& sky, const Vector3D& inter, Terrain* t, c
 
     luxRecu /= lux.length();
     return luxRecu;
+}
+
+Vector3D Camera::shadingCanyon(const Vector3D &inter, const Vector3D &normale, const Sky& sky, const Terrain* t, const Vector3D& aBox, const Vector3D& bBox, const double pMax) const
+{
+    Vector3D up(0,0,1);
+
+    Vector3D bas(74,97,77);
+    Vector3D roche(190,185,180);
+    Vector3D rocheSombre(140,135,130);
+
+    rocheSombre = Vector3D::product(rocheSombre, Vector3D(1.3,.9,.6));
+    roche = Vector3D::product(roche, Vector3D(1.2,.9,.6));
+    bas = Vector3D(250, 230, 160);
+
+    double valColorBas = raw_noise_2d(inter.x()/3, inter.y()/3);
+    bas = 0.95 * bas + 0.05 * Vector3D(valColorBas * 255, valColorBas * 255, valColorBas * 255);
+
+    double intery=inter.z();
+    intery+=-5+10*raw_noise_2d(inter.x()/80,inter.y()/80);
+
+    float crossUp = 1-std::abs(up*normale);
+
+    float angle = acos(crossUp);
+    crossUp = angle/M_PI*2;
+    crossUp = (1-crossUp)*8;
+    float noise1, noise2;
+    noise1 = -3+6*raw_noise_2d(inter.x()/30, inter.y()/30);
+    noise2 = -1+2*raw_noise_2d(inter.y()/10,inter.x()/10);
+    float coefNoise = raw_noise_2d((inter.z()+noise1+noise2)/20, (inter.z()+noise1+noise2)/20);
+    float noiseGrisRoche = -20+40*raw_noise_2d(inter.x()/2, inter.y()/2);
+    roche = mix(roche, rocheSombre, coefNoise*coefNoise) + Vector3D(noiseGrisRoche, noiseGrisRoche, noiseGrisRoche);
+    Vector3D col=mix(bas, roche, crossUp*crossUp*crossUp);
+
+
+    Vector3D luxRecu = skyShading(sky, inter, t, aBox, bBox, pMax);
+    Vector3D colF = 0.25 * luxRecu + 0.5 * col/255;
+    colF += .25 * diffuse(sky, normale, col/255);
+    colF *= ambientOcclusion(inter, normale, t, aBox, bBox, pMax);
+    return colF;
+}
+
+Vector3D Camera::shadingMountain(const Vector3D &inter, const Vector3D &normale, const Sky &sky, const Terrain *t, const Vector3D &aBox, const Vector3D &bBox, const double pMax, const Ray& r) const
+{
+
+    Vector3D up(0,0,1);
+
+    Vector3D bas(74,97,77);
+    Vector3D mil(91,75,55);
+    Vector3D roche(190,185,180);
+    Vector3D rocheSombre(140,135,130);
+    Vector3D hau(255,255,255);
+    Vector3D col(255,255,255);
+
+    double valColorBas = raw_noise_2d(inter.x()/10, inter.y()/10);
+    double valColorMil = raw_noise_2d((inter.x()+150)/10, (inter.y()+25)/10);
+    bas = 0.95 * bas + 0.05 * Vector3D(valColorBas * 255, valColorBas * 255, valColorBas * 255);
+    mil = 0.95 * mil + 0.05 * Vector3D(valColorMil * 255, valColorMil * 255, valColorMil * 255);
+
+    double intery=inter.z();
+    intery+=-5+10*raw_noise_2d(inter.x()/80,inter.y()/80);
+
+    float crossUp = 1-std::abs(up*normale);
+
+    float angle = acos(crossUp);
+    crossUp = angle/M_PI*2;
+    crossUp = (1-crossUp)*8;//*crossUp;//*crossUp);
+    float noise1, noise2;
+    noise1 = -3+6*raw_noise_2d(inter.x()/30, inter.y()/30);
+    noise2 = -1+2*raw_noise_2d(inter.y()/10,inter.x()/10);
+    float coefNoise = raw_noise_2d((inter.z()+noise1+noise2)/20, (inter.z()+noise1+noise2)/20);
+    float noiseGrisRoche = -5+10*raw_noise_2d(inter.x()/2, inter.y()/2);
+    roche = mix(roche, rocheSombre, coefNoise*coefNoise) + Vector3D(noiseGrisRoche, noiseGrisRoche, noiseGrisRoche);
+    if(intery<80){
+        col=mix(bas,mil,intery/(80*2));
+        col=mix(col, roche, crossUp*crossUp*crossUp);
+    }
+    else{
+        col=mix(mil, roche, crossUp*crossUp*crossUp);
+        col = mix(col, hau, (intery-(80*2))/(20*2));
+    }
+
+    Vector3D luxRecu = skyShading(sky, inter, t, aBox, bBox, pMax);
+    Vector3D colF = 0.2 * luxRecu + 0.4 * col/255;
+    colF += 0.2 * diffuse(sky, normale, col/255);
+    colF += 0.2 * specular(sky, normale, -r.direction,Vector3D(1,1,1), 8);
+    colF *= ambientOcclusion(inter, normale, t, aBox, bBox, pMax);
+    return colF;
 }
 
 QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& bBox, const Sky& sky, int i, int j, int l, int h,double pMax) const
@@ -111,55 +198,7 @@ QRgb Camera::ptScreen(Terrain * const t, const Vector3D& aBox, const Vector3D& b
         return couleur.rgba();
     }
 
-    Vector3D up(0,0,1);
-
-    Vector3D bas(74,97,77);
-    Vector3D mil(91,75,55);
-    Vector3D roche(190,185,180);
-    Vector3D rocheSombre(140,135,130);
-    Vector3D hau(255,255,255);
-    Vector3D col(255,255,255);
-
-    rocheSombre = Vector3D::product(rocheSombre, Vector3D(1.3,.9,.6));
-    roche = Vector3D::product(roche, Vector3D(1.2,.9,.6));
-    bas = Vector3D(255, 255, 220);
-
-    double valColorBas = raw_noise_2d(inter.x()/10, inter.y()/10);
-    double valColorMil = raw_noise_2d((inter.x()+150)/10, (inter.y()+25)/10);
-    bas = 0.95 * bas + 0.05 * Vector3D(valColorBas * 255, valColorBas * 255, valColorBas * 255);
-    mil = 0.95 * mil + 0.05 * Vector3D(valColorMil * 255, valColorMil * 255, valColorMil * 255);
-
-    double intery=inter.z();
-    intery+=-5+10*raw_noise_2d(inter.x()/80,inter.y()/80);
-
-    float crossUp = 1-std::abs(up*normale);
-
-    float angle = acos(crossUp);
-    crossUp = angle/M_PI*2;
-    crossUp = (1-crossUp)*8;//*crossUp;//*crossUp);
-    float noise1, noise2;
-    noise1 = -3+6*raw_noise_2d(inter.x()/30, inter.y()/30);
-    noise2 = -1+2*raw_noise_2d(inter.y()/10,inter.x()/10);
-    float coefNoise = raw_noise_2d((inter.z()+noise1+noise2)/20, (inter.z()+noise1+noise2)/20);
-    float noiseGrisRoche = -5+10*raw_noise_2d(inter.x()/10, inter.y()/10);
-    roche = mix(roche, rocheSombre, coefNoise*coefNoise) + Vector3D(noiseGrisRoche, noiseGrisRoche, noiseGrisRoche);
-    if(intery<80){
-        col=mix(bas,mil,intery/(80*2));
-        col=mix(col, roche, crossUp*crossUp*crossUp);
-    }
-    else{
-        col=mix(mil, roche, crossUp*crossUp*crossUp);
-        col = mix(col, hau, (intery-(80*2))/(20*2));
-    }
-
-    //col = Vector3D(1,1,1);
-    Vector3D luxRecu = skyShading(sky, inter, t, aBox, bBox, pMax);
-    Vector3D colF = 0.5 * Vector3D::product(col/255,luxRecu);
-    colF *= ambientOcclusion(inter, normale, t, aBox, bBox, pMax);
-    colF += 0.5 * diffuse(sky, normale, col/255);
-    //colF += 0.2 * specular(sky, normale, -r.direction,Vector3D(1,1,1), 8);
-    //std::cout << col << std::endl;
-    QColor couleur = colF.toQColor();
+    QColor couleur = shadingCanyon(inter, normale, sky, t, aBox, bBox, pMax).toQColor();
     return couleur.rgba();
 }
 

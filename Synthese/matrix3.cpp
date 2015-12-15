@@ -123,6 +123,8 @@ Matrix3 Matrix3::identity()
     float tab[9] = { 1, 0, 0,
                      0, 1, 0,
                      0, 0, 1};
+
+    return Matrix3(tab);
 }
 
 Matrix3 Matrix3::rotateX(float angle)
@@ -187,9 +189,9 @@ Matrix3 Matrix3::rotateAtoB(const Vector3D &a, const Vector3D &b)
     float s = v.lengthSquared();
     float c = a * b;
 
-    float tab[9] = {0, -v.z(), v.y(),
-                    v.z(), 0, -v.x(),
-                    -v.y(), v.x(), 0};
+    float tab[9] = {0.0f, -(float)v.z(), (float)v.y(),
+                    (float)v.z(), 0.0f, -(float)v.x(),
+                    -(float)v.y(), (float)v.x(), 0.0f};
 
     Matrix3 mat(tab);
 

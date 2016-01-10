@@ -6,6 +6,7 @@
 #include "mathutils.h"
 #include "smoothnoise.h"
 #include "sky.h"
+#include <QTime>
 
 #define M_PI 3.14159265358979323846
 
@@ -242,6 +243,7 @@ QImage Camera::printScreen(Terrain * const t, const Vector3D& s, int l, int h) c
     Vector3D aBox(t->getA().x(),t->getA().y(),min);
     Vector3D bBox(t->getB().x(),t->getB().y(),max*1.5);
 
+    QTime time;
     Sky sky(-s, 0.0);
     #pragma omp parallel for schedule(dynamic)
     for(int i=0;i<l;++i){
@@ -250,6 +252,7 @@ QImage Camera::printScreen(Terrain * const t, const Vector3D& s, int l, int h) c
         }
     }
 
+    std::cout << "Image generated in " << time.restart() << " ms." << std::endl;
     return im;
 
 }
